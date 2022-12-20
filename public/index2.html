@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>클라우드컴퓨팅</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="css/style.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container-fluid bg-white position-relative">
+        <nav class="navbar navbar-expand-lg bg-white navbar-light py-3 py-lg-0">
+            <a href="index.html" class="navbar-brand text-secondary">
+                <h1 class="display-4 text-uppercase">클라우드컴퓨팅</h1>
+            </a>
+            <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <div class="navbar-nav ml-auto py-0 pr-3 border-right">
+                    <a href="index.html" class="nav-item nav-link">한세대학교</a>
+                    <a href="index2.html" class="nav-item nav-link active">편의시설</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>simpleMap</title>
+		<script	src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+		<script src="https://apis.openapi.sk.com/tmap/jsv2?version=1&appKey=l7xx13443b00ba7d4644816edec172df76a5"></script>
+		<script type="text/javascript">
+			var map, marker;
+			var markerArr = [], labelArr = [];
+			
+			function initTmap() {
+				map = new Tmapv2.Map("mdiv", {
+					center : new Tmapv2.LatLng(37.3468471, 126.9524528),
+					width : "100%",
+					height : "400px",
+					zoom : 18,
+					zoomControl : true,
+					scrollwheel : true
+				});
+	
+				$("#button").click(function(){
+					var search = $('#search').val();
+					$.ajax({
+						method:"GET",
+						url:"https://apis.openapi.sk.com/tmap/pois/search/around?version=1&format=json&callback=result",
+						data:{
+							"categories" : search,
+							"resCoordType" : "EPSG3857",
+							"searchType" : "name",
+							"searchtypCd" : "A",
+							"radius" : 1,
+							"reqCoordType" : "WGS84GEO",
+							"centerLat" : "37.5620076",
+							"centerLon" : "126.9213792",
+							"appKey" : "l7xx13443b00ba7d4644816edec172df76a5",
+							"count" : 10
+						},
+						success:function(response){
+							console.log(response);
+							
+							var resultpoisData = response.searchPoiInfo.pois.poi;
+							
+							if(markerArr.length > 0){
+								for(var i in markerArr){
+									markerArr[i].setMap(null);
+								}
+								markerArr = [];
+							}
+		
+							if(labelArr.length > 0){
+								for(var i in labelArr){
+									labelArr[i].setMap(null);
+								}
+								labelArr = [];
+							}
+							
+							var innerHtml = ""; 
+							var positionBounds = new Tmapv2.LatLngBounds(); 
+							
+							
+							for(var k in resultpoisData){
+							
+								var noorLat = Number(resultpoisData[k].noorLat);
+								var noorLon = Number(resultpoisData[k].noorLon);
+								var name = resultpoisData[k].name;
+								
+								
+								var id = resultpoisData[k].id;
+								
+								var pointCng = new Tmapv2.Point(noorLon, noorLat);
+								
+								var projectionCng = new Tmapv2.Projection.convertEPSG3857ToWGS84GEO(pointCng);
+								
+								var lat = projectionCng._lat;
+								var lon = projectionCng._lng;
+								
+								var markerPosition = new Tmapv2.LatLng(lat, lon);
+							
+								marker = new Tmapv2.Marker({
+							 		position : markerPosition,
+							 		
+									iconSize : new Tmapv2.Size(24, 38),
+									title : name,
+									map:map
+							 	});
+								
+								innerHtml += "<li><div><span>"+name+"</span>  "
+								+"<button type='button' name='sendBtn' onClick='poiDetail("+id+");'>상세보기</button></div></li>";
+								
+								
+								markerArr.push(marker);
+								positionBounds.extend(markerPosition);	
+							}
+							
+							$("#searchResult").html(innerHtml);	
+							map.panToBounds(positionBounds);	
+							map.zoomOut();
+						},
+						error:function(request,status,error){
+							console.log("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+						}
+					});
+				});
+			}
+			
+			function poiDetail(poiId){
+				$.ajax({
+					method:"GET",
+					url:"	https://apis.openapi.sk.com/tmap/pois/"+poiId+"?version=1&resCoordType=EPSG3857&format=json&callback=result&appKey="+"l7xx13443b00ba7d4644816edec172df76a5",
+					async:false,
+					success:function(response){
+						var detailInfo = response.poiDetailInfo;
+						var name = detailInfo.name;
+						var address = detailInfo.address;
+						
+						var noorLat = Number(detailInfo.frontLat);
+						var noorLon = Number(detailInfo.frontLon);
+						
+						var pointCng = new Tmapv2.Point(noorLon, noorLat);
+						var projectionCng = new Tmapv2.Projection.convertEPSG3857ToWGS84GEO(pointCng);
+						
+						var lat = projectionCng._lat;
+						var lon = projectionCng._lng;
+						
+						var labelPosition = new Tmapv2.LatLng(lat, lon);
+						
+						var content = "<div style='position: relative; right: 150px; width: 300px; padding: 10px; right: 150px; background-color :#2f4f4f; border-radius:10px; line-height: 20px;'>"
+								+ "<div style='font-size: 11px; font-weight: bold ; line-height: 15px; color : white'>"
+								+ "이름 : "
+								+ name
+								+ "</br>"
+								+ "주소 : "
+								+ address + "</div>" + "</div>";
+						
+						var labelInfo = new Tmapv2.Label({
+							position : labelPosition,
+							content : content,
+							map:map
+						});
+						
+						labelArr.push(labelInfo);
+						
+					},
+					error:function(request,status,error){
+						console.log("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+					}
+				});
+			}
+</script>
+<body onload="initTmap();">
+	<div>
+		<input type="text" class="text_custom" id="search" name="search" value="편의점">	
+		<button id="button">검색</button>
+	</div>
+	<div>
+    <div id="mdiv" class="map_wrap"></div>
+		<div>
+			<div class="title"><strong>Search</strong> Results</div>
+			<div class="rst_wrap">
+				<div class="rst mCustomScrollbar">
+					<ul id="searchResult" name="searchResult">
+						<li>편의시설 리스트</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+
+</html>

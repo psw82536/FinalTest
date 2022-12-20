@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>클라우드컴퓨팅</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="css/style.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container-fluid bg-white position-relative">
+        <nav class="navbar navbar-expand-lg bg-white navbar-light py-3 py-lg-0">
+            <a href="index.html" class="navbar-brand text-secondary">
+                <h1 class="display-4 text-uppercase">클라우드컴퓨팅</h1>
+            </a>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <div class="navbar-nav ml-auto py-0 pr-3 border-right">
+                    <a href="index.html" class="nav-item nav-link active">한세대학교</a>
+                    <a href="index2.html" class="nav-item nav-link">편의시설</a>
+            </div>
+        </nav>
+    </div>
+    
+    <head>
+        <h1>한세대학교 지도</h1>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <title>simpleMap</title>
+        <script src="https://apis.openapi.sk.com/tmap/jsv2?version=1&appKey=l7xx2b5af6336aa54896835862b279037f42"></script>
+        <script type="text/javascript">
+			function initTmap(){
+				var map = new Tmapv2.Map("map_div",  
+				{
+					center: new Tmapv2.LatLng(37.3468471,126.9524528),
+					width: "1000px", 
+					height: "500px",
+					zoom: 16
+				});
+			} 
+		</script>
+    </head>
+    <body onload="initTmap()">
+        <div id="map_div">
+        </div>        
+    </body>
+</body>
+
+</html>
